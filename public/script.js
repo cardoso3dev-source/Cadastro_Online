@@ -3,15 +3,10 @@ const tabela = document.querySelector("#tabelaFuncionarios tbody");
 const busca = document.getElementById("busca");
 let editId = null;
 
-// Função para atualizar tabela
 async function atualizarTabela(filtro = "") {
     const res = await fetch("/funcionarios");
     let funcionarios = await res.json();
-
-    if (filtro) {
-        funcionarios = funcionarios.filter(f => f.nome.toLowerCase().includes(filtro.toLowerCase()));
-    }
-
+    if (filtro) funcionarios = funcionarios.filter(f => f.nome.toLowerCase().includes(filtro.toLowerCase()));
     tabela.innerHTML = "";
     funcionarios.forEach(f => {
         let tr = document.createElement("tr");
@@ -28,7 +23,6 @@ async function atualizarTabela(filtro = "") {
     });
 }
 
-// Cadastrar ou editar
 form.addEventListener("submit", async e => {
     e.preventDefault();
     const nome = document.getElementById("nome").value;
@@ -36,31 +30,21 @@ form.addEventListener("submit", async e => {
     const salario = parseFloat(document.getElementById("salario").value);
 
     if (editId) {
-        await fetch(`/funcionarios/${editId}`, {
-            method: "PUT",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({ nome, cargo, salario })
-        });
+        await fetch(`/funcionarios/${editId}`, { method: "PUT", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ nome, cargo, salario }) });
         editId = null;
     } else {
-        await fetch("/funcionarios", {
-            method: "POST",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({ nome, cargo, salario })
-        });
+        await fetch("/funcionarios", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ nome, cargo, salario }) });
     }
 
     form.reset();
     atualizarTabela(busca.value);
 });
 
-// Excluir funcionário
 async function excluirFuncionario(id) {
     await fetch(`/funcionarios/${id}`, { method: "DELETE" });
     atualizarTabela(busca.value);
 }
 
-// Editar funcionário
 function editarFuncionario(f) {
     document.getElementById("nome").value = f.nome;
     document.getElementById("cargo").value = f.cargo;
@@ -68,7 +52,5 @@ function editarFuncionario(f) {
     editId = f.id;
 }
 
-// Busca em tempo real
 busca.addEventListener("input", () => atualizarTabela(busca.value));
-
 atualizarTabela();

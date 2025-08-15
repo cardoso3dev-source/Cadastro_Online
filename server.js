@@ -5,20 +5,17 @@ const cors = require("cors");
 const path = require("path");
 
 const app = express();
-const PORT = 3000;
+const PORT = process.env.PORT || 3000;
 
-// Configurações
 app.use(cors());
 app.use(bodyParser.json());
 app.use(express.static(path.join(__dirname, "public")));
 
-// Banco de dados
 const db = new sqlite3.Database("./database.sqlite", (err) => {
     if (err) console.error(err.message);
     else console.log("Conectado ao SQLite.");
 });
 
-// Cria tabela de funcionários
 db.run(`CREATE TABLE IF NOT EXISTS funcionarios (
     id INTEGER PRIMARY KEY AUTOINCREMENT,
     nome TEXT,
@@ -26,7 +23,6 @@ db.run(`CREATE TABLE IF NOT EXISTS funcionarios (
     salario REAL
 )`);
 
-// Rotas
 app.get("/funcionarios", (req, res) => {
     db.all("SELECT * FROM funcionarios", [], (err, rows) => {
         if (err) res.status(500).json({ error: err.message });
@@ -67,7 +63,4 @@ app.delete("/funcionarios/:id", (req, res) => {
     });
 });
 
-// Inicia servidor
-app.listen(PORT, () => {
-    console.log(`Servidor rodando em http://localhost:${PORT}`);
-});
+app.listen(PORT, () => console.log(`Servidor rodando na porta ${PORT}`));
